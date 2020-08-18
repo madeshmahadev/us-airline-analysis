@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
 
 st.title("US Airlines Rating Analysis")
 st.header("Sample Dashboard to perform Sentiment Analysis on US Domestic Airlines based on Tweets")
