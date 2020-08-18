@@ -64,3 +64,62 @@ if not st.sidebar.checkbox("Close", True, key='2'):
         st.subheader("Total number of tweets for each Airline")
         fig_2 = px.pie(airline_sentiment_count, values='Tweets', names='Airline')
         st.plotly_chart(fig_2)
+
+
+
+@st.cache(persist=True)
+def plot_sentiment(airline):
+    df = data[data['airline']==airline]
+    count = df['airline_sentiment'].value_counts()
+    count = pd.DataFrame({'Sentiment':count.index, 'Tweets':count.values.flatten()})
+    return count
+
+
+st.sidebar.subheader("Breakdown airline by sentiment")
+choice = st.sidebar.multiselect('Pick airlines', ('US Airways','United','American','Southwest','Delta','Virgin America'))
+if len(choice) > 0:
+    st.subheader("Breakdown airline by sentiment")
+    breakdown_type = st.sidebar.selectbox('Visualization type', ['Pie chart', 'Bar plot', ], key='3')
+    fig_3 = make_subplots(rows=1, cols=len(choice), subplot_titles=choice)
+    if breakdown_type == 'Bar plot':
+        for i in range(1):
+            for j in range(len(choice)):
+                fig_3.add_trace(
+                    go.Bar(x=plot_sentiment(choice[j]).Sentiment, y=plot_sentiment(choice[j]).Tweets, showlegend=False),
+                    row=i+1, col=j+1
+                )
+        fig_3.update_layout(height=600, width=800)
+        st.plotly_chart(fig_3)
+    else:
+        fig_3 = make_subplots(rows=1, cols=len(choice), specs=[[{'type':'domain'}]*len(choice)], subplot_titles=choice)
+        for i in range(1):
+            for j in range(len(choice)):
+                fig_3.add_trace(
+                    go.Pie(labels=plot_sentiment(choice[j]).Sentiment, values=plot_sentiment(choice[j]).Tweets, showlegend=True),
+                    i+1, j+1
+                )
+        fig_3.update_layout(height=600, width=800)
+        st.plotly_chart(fig_3)
+st.sidebar.subheader("Breakdown airline by sentiment")
+choice = st.sidebar.multiselect('Pick airlines', ('US Airways','United','American','Southwest','Delta','Virgin America'), key=0)
+if len(choice) > 0:
+    choice_data = data[data.airline.isin(choice)]
+    fig_0 = px.histogram(
+                        choice_data, x='airline', y='airline_sentiment',
+                         histfunc='count', color='airline_sentiment',
+                         facet_col='airline_sentiment', labels={'airline_sentiment':'tweets'},
+                          height=600, width=800)
+    st.plotly_chart(fig_0)
+
+st.sidebar.header("Word Cloud")
+word_sentiment = st.sidebar.radio('Display word cloud for what sentiment?', ('positive', 'neutral', 'negative'))
+if not st.sidebar.checkbox("Close", True, key='3'):
+    st.subheader('Word cloud for %s sentiment' % (word_sentiment))
+    df = data[data['airline_sentiment']==word_sentiment]
+    words = ' '.join(df['text'])
+    processed_words = ' '.join([word for word in words.split() if 'http' not in word and not word.startswith('@') and word != 'RT'])
+    wordcloud = WordCloud(stopwords=STOPWORDS, background_color='white', width=800, height=640).generate(processed_words)
+    plt.imshow(wordcloud)
+    plt.xticks([])
+    plt.yticks([])
+    st.pyplot()
