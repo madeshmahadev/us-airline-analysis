@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 
 st.title("US Airlines Rating Analysis")
 st.header("Sample Dashboard to perform Sentiment Analysis on US Domestic Airlines based on Tweets")
+st.write("Created by [Madesh Mahadev](https://madeshmahadev.space/)")
+st.write("Click here to [View Code](https://github.com/madeshmahadev/us-airline-analysis)")
 
 st.sidebar.header("US Airlines Rating Analysis")
 
@@ -21,7 +23,7 @@ def load_data():
 
 data = load_data()
 
-st.subheader('***Generate Random Tweets***')
+st.subheader('***Choose to Generate a Random Tweet***')
 random_tweet = st.radio('Sentiment Type',('positive','negative','neutral')) #--> Widget 1
 st.markdown(data.query('airline_sentiment == @random_tweet')[["text"]].sample(1).iat[0,0])
 
@@ -33,7 +35,7 @@ sentiment_count = pd.DataFrame({'Sentiment':sentiment_count.index, 'Tweets':sent
 
 
 #Number of Tweets By Sentiment
-if not st.sidebar.checkbox("Hide",True):
+if not st.sidebar.checkbox("Hide",False):
     st.markdown("### Number of Tweets By Sentiment")
     if select == "Histogram":
         fig  = px.bar(sentiment_count, x='Sentiment',y='Tweets', color='Tweets', height=500)
